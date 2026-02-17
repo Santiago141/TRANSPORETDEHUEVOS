@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>e2e — Retención de Transportistas</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    background: #000;
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .slide {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* Slide types */
+  .slide.dark  { background: #000; }
+  .slide.light { background: #fff; color: #000; }
+  .slide.accent { background: #1a1a1a; }
+
+  /* Typography */
+  .number {
+    font-size: clamp(80px, 18vw, 180px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -4px;
+  }
+
+  .stat-label {
+    font-size: clamp(14px, 2vw, 20px);
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-top: 16px;
+  }
+
+  .headline {
+    font-size: clamp(28px, 5vw, 64px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    max-width: 800px;
+  }
+
+  .subhead {
+    font-size: clamp(16px, 2.2vw, 24px);
+    font-weight: 300;
+    opacity: 0.55;
+    margin-top: 20px;
+    max-width: 600px;
+    line-height: 1.5;
+  }
+
+  .big-word {
+    font-size: clamp(48px, 10vw, 120px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0.4;
+    margin-bottom: 24px;
+  }
+
+  /* List slide */
+  .list-items {
+    list-style: none;
+    text-align: left;
+    max-width: 640px;
+    width: 100%;
+  }
+
+  .list-items li {
+    font-size: clamp(18px, 2.5vw, 28px);
+    font-weight: 400;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    opacity: 0.85;
+  }
+
+  .list-items li:last-child { border-bottom: none; }
+
+  .list-items li span.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+
+  .light .list-items li {
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+  }
+  .light .list-items li span.dot { background: #000; }
+
+  /* Three-column */
+  .cols {
+    display: flex;
+    gap: 60px;
+    align-items: flex-start;
+    max-width: 900px;
+  }
+
+  .col {
+    flex: 1;
+    text-align: center;
+  }
+
+  .col-num {
+    font-size: clamp(36px, 5vw, 60px);
+    font-weight: 700;
+    letter-spacing: -1px;
+  }
+
+  .col-label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .col-divider {
+    width: 1px;
+    height: 80px;
+    background: rgba(255,255,255,0.15);
+    align-self: center;
+  }
+
+  /* Progress dots */
+  #dots {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+
+  .dot-nav {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    transition: background 0.3s;
+  }
+
+  .dot-nav.on { background: rgba(255,255,255,0.85); }
+
+  /* Nav hint */
+  #hint {
+    position: fixed;
+    bottom: 52px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.2;
+    transition: opacity 1s;
+  }
+
+  /* Highlight color */
+  .hl { color: #0af; }
+  .light .hl { color: #0066cc; }
+
+  /* Divider line */
+  .rule {
+    width: 40px;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.2;
+    margin: 24px auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide dark active" id="s0">
+  <p class="eyebrow">e2e Supply Chain Services</p>
+  <h1 class="headline">El activo más valioso<br>no es la carga.<br>Es el transportista.</h1>
+</div>
+
+<!-- SLIDE 2: The problem -->
+<div class="slide dark" id="s1">
+  <div class="number hl">99,000</div>
+  <p class="stat-label">Operadores que faltan en México hoy</p>
+  <div class="rule"></div>
+  <p class="subhead">Y el número crece cada año.</p>
+</div>
+
+<!-- SLIDE 3: Cost squeeze -->
+<div class="slide accent" id="s2">
+  <p class="eyebrow">La paradoja</p>
+  <div class="cols">
+    <div class="col">
+      <div class="col-num hl">+20%</div>
+      <div class="col-label">Costos operativos<br>del transportista</div>
+    </div>
+    <div class="col-divider"></div>
+    <div class="col">
+      <div class="col-num">+6.4%</div>
+      <div class="col-label">Lo que suben<br>las tarifas</div>
+    </div>
+  </div>
+  <p class="subhead" style="margin-top:40px">Cada carrier pierde terreno. Nosotros podemos cambiarlo.</p>
+</div>
+
+<!-- SLIDE 4: Our constraint -->
+<div class="slide light" id="s3">
+  <p class="eyebrow">Nuestra restricción</p>
+  <div class="big-word hl">7%</div>
+  <p class="stat-label" style="color:#000; margin-top:16px">Máximo ajuste tarifario</p>
+  <div class="rule"></div>
+  <p class="subhead">No alcanza. Necesitamos otro camino.</p>
+</div>
+
+<!-- SLIDE 5: The insight -->
+<div class="slide dark" id="s4">
+  <p class="eyebrow">El insight</p>
+  <h1 class="headline">El transportista<br>no busca la tarifa<br>más alta.</h1>
+  <div class="rule"></div>
+  <p class="subhead">Busca liquidez, seguridad y respeto.</p>
+</div>
+
+<!-- SLIDE 6: The solution -->
+<div class="slide dark" id="s5">
+  <p class="eyebrow">La solución</p>
+  <h1 class="headline">Valor equivalente<br>a <span class="hl">+15%</span> de tarifa.<br>Sin mover la tarifa.</h1>
+</div>
+
+<!-- SLIDE 7: Four moves -->
+<div class="slide accent" id="s6">
+  <p class="eyebrow">Cuatro movimientos</p>
+  <ul class="list-items">
+    <li><span class="dot"></span>Pago en 48 horas — Quick Pay</li>
+    <li><span class="dot"></span>Diésel a precio preferencial</li>
+    <li><span class="dot"></span>Cargas de retorno garantizadas</li>
+    <li><span class="dot"></span>Un manager dedicado, de verdad</li>
+  </ul>
+</div>
+
+<!-- SLIDE 8: The risk -->
+<div class="slide light" id="s7">
+  <p class="eyebrow">El riesgo de no actuar</p>
+  <h1 class="headline hl">Los mejores carriers<br>se irán.</h1>
+  <div class="rule"></div>
+  <p class="subhead">Los que queden serán los peores.<br>Y Kerry lo notará primero.</p>
+</div>
+
+<!-- SLIDE 9: Roadmap -->
+<div class="slide dark" id="s8">
+  <p class="eyebrow">Hoja de ruta</p>
+  <ul class="list-items">
+    <li><span class="dot"></span><strong style="opacity:1">Hoy&nbsp;&nbsp;</strong>&nbsp;Quick Pay + segmentación tier</li>
+    <li><span class="dot"></span><strong style="opacity:1">90 días</strong>&nbsp;&nbsp;Diésel preferencial + backhauls</li>
+    <li><span class="dot"></span><strong style="opacity:1">180 días</strong>&nbsp;Portal digital para carriers</li>
+    <li><span class="dot"></span><strong style="opacity:1">12 meses</strong>&nbsp;Contratos anuales con indexación</li>
+  </ul>
+</div>
+
+<!-- SLIDE 10: Close -->
+<div class="slide dark" id="s9">
+  <h1 class="headline">Quien domine la relación<br>con el transportista<br>domina el mercado.</h1>
+  <div class="rule"></div>
+  <p class="subhead">e2e Supply Chain Services — 2025</p>
+</div>
+
+<!-- Navigation -->
+<div id="dots"></div>
+<div id="hint">click para avanzar</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const hint = document.getElementById('hint');
+  let cur = 0, total = slides.length;
+
+  // Build dots
+  const dotsEl = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot-nav' + (i === 0 ? ' on' : '');
+    dotsEl.appendChild(d);
+  });
+  const dotEls = document.querySelectorAll('.dot-nav');
+
+  function go(n) {
+    slides[cur].style.opacity = 0;
+    setTimeout(() => {
+      slides[cur].style.display = 'none';
+      slides[cur].classList.remove('active');
+      dotEls[cur].classList.remove('on');
+      cur = (n + total) % total;
+      slides[cur].style.display = 'flex';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          slides[cur].style.opacity = 1;
+          slides[cur].classList.add('active');
+          dotEls[cur].classList.add('on');
+        });
+      });
+    }, 300);
+    // Hide hint after first click
+    hint.style.opacity = 0;
+  }
+
+  document.addEventListener('click', () => go(cur + 1));
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') go(cur + 1);
+    if (e.key === 'ArrowLeft') go(cur - 1);
+  });
+</script>
+</body>
+</html>
